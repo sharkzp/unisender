@@ -24,47 +24,47 @@ module UniSender
 
     private
 
-def translate_params(params)
-  params.inject({}) do |iparams, couple|
-    iparams[couple.first] = case couple.last
-    when String
-      URI.encode(couple.last)
-    when Array
-      couple.last.map{|item| URI.encode(item.to_s)}.join(',')
-    when Hash
-      couple.last.each do |key, value|
-        if value.is_a? Hash
-          value.each do |v_key, v_value|
-            iparams["#{couple.first}[#{key}][#{v_key}]"] = URI.encode(v_value.to_s)
+    def translate_params(params)
+      params.inject({}) do |iparams, couple|
+        iparams[couple.first] = case couple.last
+        when String
+          URI.encode(couple.last)
+        when Array
+          couple.last.map{|item| URI.encode(item.to_s)}.join(',')
+        when Hash
+          couple.last.each do |key, value|
+            if value.is_a? Hash
+              value.each do |v_key, v_value|
+                iparams["#{couple.first}[#{key}][#{v_key}]"] = URI.encode(v_value.to_s)
+              end
+            else
+              iparams["#{couple.first}[#{key}]"] = URI.encode(value.to_s)
+            end
           end
+          nil
         else
-          iparams["#{couple.first}[#{key}]"] = URI.encode(value.to_s)
+          couple.last
         end
+        iparams
       end
-      nil
-    else
-      couple.last
     end
-    iparams
-  end
-end
 
-      def method_missing(undefined_action, *args, &block)
-        params = (args.first.is_a?(Hash) ? args.first : {} )
-        default_request(undefined_action.to_s.camelize(false), params)
-      end
+    def method_missing(undefined_action, *args, &block)
+      params = (args.first.is_a?(Hash) ? args.first : {} )
+      default_request(undefined_action.to_s.camelize(false), params)
+    end
 
-      def default_request(action, params={})
-        params = translate_params(params) if defined?('translate_params')
-        params.merge!({'api_key'=>api_key, 'format'=>'json'})
-        query = make_query(params)
-        url = URI("http://api.unisender.com/#{locale}/api/#{action}")
-        JSON.parse(Net::HTTP.post_form(url, query).body)
-      end
+    def default_request(action, params={})
+      params = translate_params(params) if defined?('translate_params')
+      params.merge!({'api_key' => api_key, 'format' => 'json'})
+      query = make_query(params)
+      url = URI("http://api.unisender.com/#{locale}/api/#{action}")
+      JSON.parse(Net::HTTP.post_form(url, query).body)
+    end
 
-      def make_query(params)
-        params.delete_if{|k,v| v.to_s.empty?}
-      end
+    def make_query(params)
+      params.delete_if{|k,v| v.to_s.empty?}
+    end
 
   end
 

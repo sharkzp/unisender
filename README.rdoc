@@ -6,11 +6,7 @@ uni_sender gem provides full dev kit to access to api of unisender.com.ua. It us
 
 If you use bundler then add this
 
-  gem 'uni_sender'
-
-Or you can install it via gem command
-
-  gem install uni_sender
+  gem 'uni_sender', :git => https://github.com/sharkzp/unisender.git
 
 == Getting Started
 
