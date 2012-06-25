@@ -25,8 +25,22 @@ module UniSender
     private
 
     def translate_params(params)
+      if params[:field_names]
+        params[:field_names].each_with_index do |name, index|
+          params["field_names[#{index}]"] = name
+        end
+        params.delete(:field_names)
+      end
+      if params[:data]
+        params[:data].each_with_index do |row, index|
+          row.each_with_index do |data, data_index|
+            params["data[#{index}][#{data_index}]"] = data
+          end if row
+        end 
+        params.delete(:data)
+      end
       params.inject({}) do |iparams, couple|
-        iparams[couple.first] = case couple.last
+        iparams[couple.first.to_s] = case couple.last
         when String
           URI.encode(couple.last)
         when Array

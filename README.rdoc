@@ -18,7 +18,7 @@ Gem provides non-sensitive style, so action getLits will equal to get_lists or G
 
 For getting contacts call client.exportContacts(or export_clients ;) ). If request will be accepted client return hash in format 
   
-  {'result'=>{'field_names'=>[...], 'data'=>[[...], [...], ... ]}
+  {'result' => {'field_names' => [...], 'data' => [[...], [...], ... ]}
 
 Before sent action to server gem process all parameters. If it will be String gem decode it to url standarts - no latin symbols will changed to equal codes.For example:
   
@@ -30,7 +30,7 @@ If parameter are array, uni_sender will join contents by ","(comma), also proces
 
 Hash will decode to variables of 2 level, for example:
 
-  :friend=>{:name=>"Роман", :car=>"BMW"}  will be friend[name]=%D0%A0%D0%BE%D0%BC%D0%B0%D0%BD&friend[car]=BMW
+  :friend => {:name => "Роман", :car => "BMW"}  will be friend[name]=%D0%A0%D0%BE%D0%BC%D0%B0%D0%BD&friend[car]=BMW
 
 == Dependencies
 
