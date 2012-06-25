@@ -42,17 +42,17 @@ module UniSender
       params.inject({}) do |iparams, couple|
         iparams[couple.first.to_s] = case couple.last
         when String
-          URI.encode(couple.last)
+          couple.last
         when Array
-          couple.last.map{|item| URI.encode(item.to_s)}.join(',')
+          couple.last.map{|item| item.to_s}.join(',')
         when Hash
           couple.last.each do |key, value|
             if value.is_a? Hash
               value.each do |v_key, v_value|
-                iparams["#{couple.first}[#{key}][#{v_key}]"] = URI.encode(v_value.to_s)
+                iparams["#{couple.first}[#{key}][#{v_key}]"] = v_value.to_s
               end
             else
-              iparams["#{couple.first}[#{key}]"] = URI.encode(value.to_s)
+              iparams["#{couple.first}[#{key}]"] = value.to_s
             end
           end
           nil

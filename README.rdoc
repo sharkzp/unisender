@@ -1,4 +1,4 @@
-= UniSender
+= UniSender{<img src="https://secure.travis-ci.org/sharkzp/unisender.png?branch=master" alt="Build Status" />}[http://travis-ci.org/sharkzp/unisender]
 
 uni_sender gem provides full dev kit to access to api of unisender.com.ua. It uses method_missing method to provide flexible functionality, so all methods will return hash that represents responce of server.
 
