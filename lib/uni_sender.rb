@@ -1,11 +1,12 @@
 require "uni_sender/version"
-require 'uni_sender/camelize'
+require 'uni_sender/support'
 require 'net/http'
 require 'json'
 
 module UniSender
 
   class Client
+    using UniSender::Support
 
     attr_accessor :api_key, :client_ip, :locale
 
@@ -36,7 +37,7 @@ module UniSender
           row.each_with_index do |data, data_index|
             params["data[#{index}][#{data_index}]"] = data
           end if row
-        end 
+        end
         params.delete(:data)
       end
       params.inject({}) do |iparams, couple|

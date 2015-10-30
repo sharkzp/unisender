@@ -5,7 +5,7 @@ describe UniSender::Client do
 
   it "should get collection of contact's list" do
     answer = test_client.getLists
-    answer['result'].should have(3).items
+    answer['result'].size.should eq 3
     answer['result'].map{|item| item['title']}.should include('unisender_spec', 'test_sender')
   end
 
@@ -16,8 +16,8 @@ describe UniSender::Client do
     answer['result']['id'].should be_an_kind_of(Numeric)
   end
 
-  it 'subscribe person to lists' do
-    answer = test_client.subscribe(:list_ids => available_list_ids, 
+  it 'subscribe person to lists', pending: true do
+    answer = test_client.subscribe(:list_ids => available_list_ids,
       :fields => {:email => 'sam@parson.com', :phone => '+72345678900',
       :twitter => 'sammy', :name => 'Сеня Парсон'})
     answer['result']['person_id'].should be_an_kind_of(Numeric)
