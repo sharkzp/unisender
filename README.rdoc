@@ -2,10 +2,6 @@
 
 uni_sender gem provides full dev kit to access to api of unisender.com.ua. It uses method_missing method to provide flexible functionality, so all methods will return hash that represents responce of server.
 
-== Important
-
-Ruby 2.0+
-
 == Installation
 
 If you use bundler then add this
@@ -42,7 +38,7 @@ all this provided by gem and data translated into
 
 == Dependencies
 
-That gem supports ruby 1.8+
+That gem supports ruby 2.0+
 
 == Wikis
 
