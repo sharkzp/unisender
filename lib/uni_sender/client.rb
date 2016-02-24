@@ -1,81 +1,74 @@
+require 'net/http'
+require 'json'
+
 module UniSender
-
   class Client
-    using Support
+  private
+    attr_reader :api_key, :locale
 
-    attr_accessor :api_key, :client_ip, :locale
-
-    def initialize(api_key, params={})
-      self.api_key = api_key
-      params.each do |key, value|
-        if defined?("#{key}=")
-          self.send("#{key}=", value)
-        end
-      end
+    def initialize(api_key, opts = {})
+      @api_key = api_key
+      @locale = opts.fetch(:locale, :en)
     end
-
-    def locale
-      @locale || 'en'
-    end
-
-    private
 
     def translate_params(params)
-      if params[:field_names]
-        params[:field_names].each_with_index do |name, index|
-          params["field_names[#{index}]"] = name
-        end
-        params.delete(:field_names)
-      end
-      if params[:data]
-        params[:data].each_with_index do |row, index|
-          row.each_with_index do |data, data_index|
-            params["data[#{index}][#{data_index}]"] = data
-          end if row
-        end
-        params.delete(:data)
-      end
-      params.inject({}) do |iparams, couple|
-        iparams[couple.first.to_s] = case couple.last
-        when String
-          couple.last
-        when Array
-          couple.last.map{|item| item.to_s}.join(',')
-        when Hash
-          couple.last.each do |key, value|
-            if value.is_a? Hash
-              value.each do |v_key, v_value|
-                iparams["#{couple.first}[#{key}][#{v_key}]"] = v_value.to_s
-              end
-            else
-              iparams["#{couple.first}[#{key}]"] = value.to_s
-            end
+      params.inject({}) do |iparams, (k, v)|
+        if k == :field_names
+          v.each_with_index do |name, index|
+            iparams["field_names[#{index}]"] = name
           end
-          nil
+        elsif k == :data
+          v.each_with_index do |row, index|
+            row.each_with_index do |data, data_index|
+              iparams["data[#{index}][#{data_index}]"] = data
+            end if row
+          end
         else
-          couple.last
+          case v
+          when String
+            iparams[k.to_s] = v
+          when Array
+            iparams[k.to_s] = v.map(&:to_s).join(',')
+          when Hash
+            v.each do |key, value|
+              if value.is_a? Hash
+                value.each do |v_key, v_value|
+                  iparams["#{k}[#{key}][#{v_key}]"] = v_value.to_s
+                end
+              else
+                iparams["#{k}[#{key}]"] = value.to_s
+              end
+            end
+          else
+            iparams[k.to_s] = v.to_s
+          end
         end
         iparams
       end
     end
 
-    def method_missing(undefined_action, *args, &block)
-      params = (args.first.is_a?(Hash) ? args.first : {} )
-      default_request(undefined_action.to_s.camelize(false), params)
+    def method_missing(method_name, *args, &block)
+      _params = args.first.is_a?(Hash) ? args.first : {}
+      api_method = camelize_lower(method_name.to_s)
+      res = default_request(api_method, _params)
+      # Define method after it was called the first time.
+      eigenclass = class << self; self; end
+      eigenclass.__send__(:define_method, method_name) do |params = {}|
+        default_request(api_method, params)
+      end
+      res
     end
 
-    def default_request(action, params={})
-      params = translate_params(params) if defined?('translate_params')
-      params.merge!({'api_key' => api_key, 'format' => 'json'})
-      query = make_query(params)
-      url = URI("http://api.unisender.com/#{locale}/api/#{action}")
-      JSON.parse(Net::HTTP.post_form(url, query).body)
+    def default_request(action, params)
+      params = translate_params(params).delete_if { |_, v| v.empty? }
+      params.merge!({ 'api_key' => api_key, 'format' => 'json' })
+      response = Net::HTTP.post_form(URI("http://api.unisender.com/#{locale}/api/#{action}"), params)
+      raise NoMethodError.new("Unknown API method #{action}") if response.code == '404'
+      JSON.parse(response.body)
     end
 
-    def make_query(params)
-      params.delete_if{|k,v| v.to_s.empty?}
+    def camelize_lower(string)
+      string.gsub(/_\w/) { |s| s[1].upcase }
     end
-
   end
-
 end
