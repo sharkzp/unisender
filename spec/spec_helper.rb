@@ -1,13 +1,2 @@
-require 'rubygems'
-require 'bundler/setup'
-
-Bundler.require(:default)
-
+$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'uni_sender'
-require "data_macros"
-
-RSpec.configure do |config|
-
-  config.include(DataMacros)
-
-end
